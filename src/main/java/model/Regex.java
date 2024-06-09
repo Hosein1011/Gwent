@@ -1,20 +1,20 @@
 package model;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public enum Regex {
-    USERNAME("^[a-zA-Z0-9_]+$"),
-    EMAIL("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"),
-    PASSWORD("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
+    USERNAME("^[a-zA-Z0-9_]{3,15}$"),
+    PASSWORD("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$"),
+    EMAIL("^[A-Za-z0-9+_.-]+@(.+)$");
 
-    final String regex;
+    private Pattern pattern;
 
     Regex(String regex) {
-        this.regex = regex;
+        this.pattern = Pattern.compile(regex);
     }
 
-    public Matcher getMatcher(String string) {
-        return Pattern.compile(regex).matcher(string);
+    public Matcher getMatcher(String input) {
+        return this.pattern.matcher(input);
     }
 }

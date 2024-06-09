@@ -43,6 +43,7 @@ public class LoginMenuApplication extends Application {
         mediaPlayer.play();
 
         // UI Elements
+        Label loginLabel = new Label("Login Menu");
         Label usernameLabel = new Label("Username:");
         TextField usernameField = new TextField("Enter your username");
         Label passwordLabel = new Label("Password:");
@@ -52,6 +53,7 @@ public class LoginMenuApplication extends Application {
         Button currentMenu = createButton("Show Current Menu");
 
         // Style the labels
+        loginLabel.setStyle("-fx-font-family: 'Times New Roman'; -fx-font-size: 56px; -fx-text-fill: white; -fx-alignment: center;");
         usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
         passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
 
@@ -70,8 +72,8 @@ public class LoginMenuApplication extends Application {
         });
 
         // Add all elements to the VBox
-        VBox vbox = new VBox(10, usernameLabel, usernameField, passwordLabel, passwordField, loginButton, registerButton, currentMenu, forgotPasswordLink);
-        vbox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-border-color: #FFD700; -fx-border-width: 2px; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 20;");
+        VBox vbox = new VBox(10,loginLabel, usernameLabel, usernameField, passwordLabel, passwordField, loginButton, registerButton, currentMenu, forgotPasswordLink);
+        vbox.setStyle("-fx-background-color: rgba(0,0,0,0); -fx-border-color: rgba(0,204,255,0.25); -fx-border-width: 2px; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 20;");
         vbox.setPadding(new Insets(25));
         vbox.setAlignment(Pos.CENTER);
 
@@ -79,6 +81,11 @@ public class LoginMenuApplication extends Application {
         double squareSize = 450;
         vbox.setPrefWidth(squareSize);
         vbox.setPrefHeight(squareSize);
+        DropShadow vboxShadow = new DropShadow();
+        vboxShadow.setColor(Color.GOLD);
+        vboxShadow.setRadius(10);
+        vboxShadow.setSpread(0.5);
+        vbox.setEffect(vboxShadow);
 
         // Add blur effect to the VBox
         BoxBlur blurEffect = new BoxBlur(3, 3, 3);

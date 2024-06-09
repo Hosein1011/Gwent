@@ -5,11 +5,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
@@ -43,10 +39,13 @@ public class RegisterMenuApplication extends Application {
         mediaPlayer.play();
 
         // UI Elements
+        Label loginLabel = new Label("Register Menu");
         Label nameLabel = new Label("Name:");
         TextField nameField = new TextField("Enter your name");
         Label usernameLabel = new Label("Username:");
         TextField usernameField = new TextField("Enter your username");
+        Label emailLabel = new Label("Email:");
+        TextField emailField = new TextField("Enter your email");
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();
         Label repeatPasswordLabel = new Label("Repeat Password:");
@@ -55,12 +54,16 @@ public class RegisterMenuApplication extends Application {
         Button goToLoginMenuButton = createButton("Go to Login Menu");
 
         // Style the labels
+        loginLabel.setStyle("-fx-font-family: 'Times New Roman'; -fx-font-size: 56px; -fx-text-fill: white; -fx-alignment: center;");
+        emailLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
         usernameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
         passwordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
         repeatPasswordLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
 
         // Style the text fields
+        emailField.setPrefWidth(400);
+        emailField.setStyle("-fx-font-size: 16px");
         nameField.setPrefWidth(400);
         nameField.setStyle("-fx-font-size: 16px;");
         usernameField.setPrefWidth(400);
@@ -71,8 +74,8 @@ public class RegisterMenuApplication extends Application {
         repeatPasswordField.setStyle("-fx-font-size: 16px;");
 
         // Add all elements to the VBox
-        VBox vbox = new VBox(10, nameLabel, nameField, usernameLabel, usernameField, passwordLabel, passwordField, repeatPasswordLabel, repeatPasswordField, registerButton, goToLoginMenuButton);
-        vbox.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-border-color: #FFD700; -fx-border-width: 2px; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 20;");
+        VBox vbox = new VBox(10, loginLabel, nameLabel, nameField, usernameLabel, usernameField, emailLabel, emailField, passwordLabel, passwordField, repeatPasswordLabel, repeatPasswordField, registerButton, goToLoginMenuButton);
+        vbox.setStyle("-fx-background-color: rgba(0,0,0,0); -fx-border-color: rgba(0,204,255,0.25); -fx-border-width: 2px; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 20;");
         vbox.setPadding(new Insets(25));
         vbox.setAlignment(Pos.CENTER);
 
@@ -80,6 +83,12 @@ public class RegisterMenuApplication extends Application {
         double squareSize = 450;
         vbox.setPrefWidth(squareSize);
         vbox.setPrefHeight(squareSize);
+
+        DropShadow vboxShadow = new DropShadow();
+        vboxShadow.setColor(Color.GOLD);
+        vboxShadow.setRadius(10);
+        vboxShadow.setSpread(0.5);
+        vbox.setEffect(vboxShadow);
 
         // Add blur effect to the VBox
         BoxBlur blurEffect = new BoxBlur(3, 3, 3);
@@ -108,7 +117,17 @@ public class RegisterMenuApplication extends Application {
 
         RegisterMenuController.setRegisterMenuApplication(this);
 
-        registerButton.setOnAction(e -> RegisterMenuController.registerUser(nameField.getText(), usernameField.getText(), passwordField.getText(), repeatPasswordField.getText()));
+        // Define actions for the buttons7
+        registerButton.setOnAction(e -> {
+            String name = nameField.getText();
+            String username = usernameField.getText();
+            String email = emailField.getText();
+            String password = passwordField.getText();
+            String confirmPassword = repeatPasswordField.getText();
+
+            RegisterMenuController.registerUser(name, username, email, password, confirmPassword);
+        });
+
         goToLoginMenuButton.setOnAction(e -> {
             primaryStage.close();
             try {

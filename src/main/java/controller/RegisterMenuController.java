@@ -1,25 +1,43 @@
 package controller;
 
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import model.Regex;
+import model.User;
+import model.UserStorage;
 import view.LoginMenuApplication;
 import view.RegisterMenuApplication;
 import javafx.scene.control.Alert;
 
+import java.io.IOException;
+import java.util.Objects;
+
 public class RegisterMenuController {
+
     private static RegisterMenuApplication registerMenuApplication;
 
     public static void setRegisterMenuApplication(RegisterMenuApplication registerMenuApplication) {
         RegisterMenuController.registerMenuApplication = registerMenuApplication;
     }
 
-    public static void registerUser(String name, String username, String password, String confirmPassword) {
+    public static void registerUser(String name, String username, String email, String password, String confirmPassword) {
         if (!isUsernameValid(username)) {
             showAlert("Registration Error", "Invalid Username.");
             return;
         }
-        if (!isUsernameUnique(username)) {
+        if (!UserStorage.isUsernameUnique(username)) {
             showAlert("Registration Error", "Username already exists.");
+            return;
+        }
+        if (!isEmailValid(email)) {
+            showAlert("Registration Error", "Invalid Email.");
+            return;
+        }
+        if (!UserStorage.isEmailUnique(email)) {
+            showAlert("Registration Error", "Email already exists.");
             return;
         }
         if (!isPasswordValid(password)) {
@@ -35,13 +53,19 @@ public class RegisterMenuController {
             return;
         }
 
+        if (UserStorage.isUsernameUnique(username) && UserStorage.isEmailUnique(email)) {
+            User newUser = new User(name ,username, password, email);
+            UserStorage.addUser(newUser);
+            showAlert("Registration Successful", "User registered successfully.");
+        } else {
+            showAlert("Registration Error", "Username or email already exists.");
+        }
         // Registration successful
-        showAlert("Registration Successful", "You have successfully registered.");
         goToLoginMenu();
     }
 
     private static void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -60,10 +84,8 @@ public class RegisterMenuController {
         return Regex.USERNAME.getMatcher(username).matches();
     }
 
-    public static boolean isUsernameUnique(String username) {
-        // Check if the username is unique (implement your own logic)
-        // For demonstration, assume all usernames are unique except "user"
-        return !username.equals("user");
+    public static boolean isEmailValid(String email) {
+        return Regex.EMAIL.getMatcher(email).matches();
     }
 
     private static void goToLoginMenu() {

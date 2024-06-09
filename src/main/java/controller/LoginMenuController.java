@@ -1,10 +1,14 @@
 package controller;
 
+import model.User;
+import model.UserStorage;
 import view.LoginMenuApplication;
 import view.RegisterMenuApplication;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
+
+import static controller.GameMainController.users;
 
 public class LoginMenuController {
     private static LoginMenuApplication loginMenuApplication;
@@ -21,23 +25,32 @@ public class LoginMenuController {
             showAlert("Login Error", "Username or Password cannot be empty.");
             return;
         }
+        // Debug: Print login attempt
+        System.out.println("Attempting to log in with username: " + username);
 
-        // Here you should add the logic to verify the username and password
         boolean loginSuccessful = authenticateUser(username, password);
-
         if (loginSuccessful) {
             showAlert("Login Successful", "Welcome, " + username + "!");
             // Redirect to main menu or game screen
-            goToMainMenu();
+            //goToMainMenu();
         } else {
             showAlert("Login Error", "Invalid Username or Password.");
         }
     }
 
     private static boolean authenticateUser(String username, String password) {
-        // Implement your authentication logic here
-        // For now, let's just return true for demonstration purposes
-        return "user".equals(username) && "password".equals(password);
+        User user = UserStorage.getUserByUsername(username);
+        // Debug: Print retrieved user
+        System.out.println("Retrieved user: " + (user != null ? user.getUsername() : "null"));
+
+        if (user != null && user.getPassword().equals(password)) {
+            // Debug: Print password match success
+            System.out.println("Password match for user: " + username);
+            return true;
+        }
+        // Debug: Print password match failure
+        System.out.println("Password match failed for user: " + username);
+        return false;
     }
 
     private static void showAlert(String title, String message) {

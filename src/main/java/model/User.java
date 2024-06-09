@@ -94,4 +94,7 @@ public class User {
         return null;
     }
 
+    public String getEmail() {
+        return email;
+    }
 }
