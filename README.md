@@ -1,85 +1,120 @@
-# ⚔️ Gwent — The Witcher Card Game Engine
+# Gwent: The Witcher Card Game (JavaFX)
 
-[![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=flat-square&logo=openjdk)](https://openjdk.org/)
-[![Maven](https://img.shields.io/badge/Build-Maven-C71A36?style=flat-square&logo=apachemaven)](https://maven.apache.org/)
-[![Architecture](https://img.shields.io/badge/Architecture-MVC%20Pattern-blue?style=flat-square)]()
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-
-A high-performance, object-oriented software implementation of **The Witcher's Gwent Card Game** written in Java 21 LTS. Engineered around a strict **Model-View-Controller (MVC)** architectural design pattern, the engine simulates complex round-based card combat, faction-specific bonuses, weather debuffs, persistent user sessions, and algorithmic game state resolution.
+A desktop implementation of The Witcher 3's Gwent card game written in Java 17/21 using OpenJFX (JavaFX 19). Developed as the semester final project for the Advanced Programming (AP) course at Sharif University of Technology.
 
 ---
 
-## 🏛️ Architecture & Game Engine Design
+## Architecture & System Design
 
-```mermaid
-flowchart TD
-    subgraph ControllerLayer["Controller Layer"]
-        GC["GameController\n(Round Engine & Turn Orchestration)"]
-        UC["UserController\n(Auth & Profile Persistence)"]
-    end
+The application follows a Model-View-Controller (MVC) architecture with FXML-driven scenes, media player acceleration, and coordinate-based board rendering.
 
-    subgraph ModelLayer["Domain Model Layer"]
-        CardModel["Card & CardType Engine\n(Melee, Ranged, Siege, Special)"]
-        FieldModel["GameField & Weather Engine\n(Row Strengths & Active Debuffs)"]
-        FactionModel["Faction System\n(Northern Realms, Nilfgaard, Monsters, Scoia'tael)"]
-    end
-
-    subgraph ViewLayer["Presentation Layer"]
-        CLIView["Game Visualizer & Interactive CLI\n(Card Rows, Hand Roster, Live Scores)"]
-    end
-
-    CLIView --> GC
-    CLIView --> UC
-    GC --> CardModel
-    GC --> FieldModel
-    GC --> FactionModel
+```
+                      +-----------------------------+
+                      |        User Input           |
+                      |   (Mouse, Keyboard, FXML)   |
+                      +--------------+--------------+
+                                     |
+                                     v
++------------------------------------+------------------------------------+
+|                          CONTROLLER LAYER                               |
+|  - GameController: Round orchestration, turn states, passing, scores    |
+|  - GameMainController: Card placement, ability triggers, row scoring    |
+|  - LoginMenuController / RegisterMenuController: User auth & storage    |
+|  - MainMenuController / ProfileController: Navigation & history         |
+|  - PregameController: Faction selection & 22-card minimum deck builder  |
++------------------+----------------------------------+-------------------+
+                   |                                  |
+                   v                                  v
++------------------+---------------+  +---------------+-------------------+
+|            MODEL LAYER           |  |            VIEW LAYER             |
+| - CardType: Full card database   |  | - FXML Scenes: Login, Register,   |
+|   (Combat, Agile, Hero, Weather) |  |   Main Menu, Profile, History     |
+| - GameField: 3-row state model   |  | - GameApplication: Custom board   |
+|   (Melee, Ranged, Siege + Debuff)|  |   canvas (1150x650 coordinate map)|
+| - Player: Deck, hand, discard    |  | - Media Player: Video background  |
+| - UserStorage: Auth persistence  |  |   playback via javafx-media       |
++----------------------------------+  +-----------------------------------+
 ```
 
 ---
 
-## ✨ Key Technical Capabilities
+## Technical Features
 
-- **Normalized MVC Separation**: Distinct separation between game state models, user persistence controllers, and terminal/GUI presentation layers.
-- **Dynamic Card Mechanics**: Modular strategy pattern supporting special unit abilities: *Morale Boost*, *Tight Bond*, *Medic revival*, *Spy card card-draw*, *Scorch board wipes*, and *Horn multipliers*.
-- **Weather System Simulation**: Row-specific weather cards (*Biting Frost*, *Impenetrable Fog*, *Torrential Rain*) dynamically capping unit strengths with instant state re-calculation.
-- **Multi-Faction Ecosystem**: Complete rule implementation for all major factions (*Northern Realms*, *Nilfgaardian Empire*, *Monsters*, *Scoia'tael*, *Skellige*) with native passive abilities.
+### 1. Game Engine & Card Mechanics (`src/main/java/model/CardType.java`)
+- **Full Faction Catalog:** Complete card databases for Skellige, Scoia'tael, Monsters, Northern Realms, and the Nilfgaardian Empire.
+- **Card Ability Resolution:**
+  - **Tight Bond:** Multiplies strength when identical units share a row.
+  - **Morale Boost:** Adds +1 to all other row units.
+  - **Commanders Horn:** Doubles row strength.
+  - **Medic:** Revives eligible non-hero units from the discard pile.
+  - **Spy:** Placed on opponent's field, granting 2 card draws to the caster.
+  - **Scorch:** Destroys highest-strength non-hero cards on the board.
+  - **Muster:** Automatically fetches and plays all matching copies from deck/hand.
+  - **Hero Immunity:** Gold hero cards remain unaffected by weather debuffs, scorch, or horns.
+- **Row & Weather Systems:** Independent Melee, Ranged, and Siege rows subject to row-specific weather cards (Biting Frost, Impenetrable Fog, Torrential Rain) setting non-hero card strength to 1, with Clear Weather clearing debuffs.
+
+### 2. Graphical User Interface & Media Integration
+- **FXML Scene Graphs:** Declarative views for authentication, player profile inspection, match history review, and pregame deck assembly.
+- **Video Playback (`javafx-media`):** Hardware-accelerated background video rendering on the login screen (`LoginMenu_Background.mp4`).
+- **Board Coordinate Mapping:** Absolute coordinate board overlay (1150 x 650 resolution) on `board.jpg`, dynamically positioning card slots, leader cards, weather slots, and live round score indicators.
+
+### 3. Session & Deck Management
+- **Pre-Game Deck Builder (`PregameController.java`):** Enforces Gwent deck-building constraints (minimum 22 unit cards, maximum 10 special cards, exactly 1 leader).
+- **Match History & Profiles:** Persistent local record keeping of match outcomes, scores, and timestamps.
 
 ---
 
-## 📂 Source Code Layout
+## Repository Structure
 
-```text
+```
 Gwent/
-├── pom.xml                   # Maven build configuration & compiler settings (Java 21)
+├── pom.xml                               # Java 17/21 Maven configuration & JavaFX dependencies
 ├── src/main/java/
-│   ├── controller/           # Game orchestrator, round manager, auth controller
-│   ├── model/                # Cards, Factions, GameField, User, RoundResult
-│   └── view/                 # Interactive user interface & display renderer
-└── README.md
+│   ├── controller/                       # Game flow, deck selection, auth controllers
+│   │   ├── CardCloning.java
+│   │   ├── GameController.java
+│   │   ├── GameMainController.java
+│   │   ├── LoginMenuController.java
+│   │   ├── MainMenuController.java
+│   │   ├── PregameController.java
+│   │   ├── ProfileController.java
+│   │   └── RegisterMenuController.java
+│   ├── model/                            # Domain entities, card enum, game field, player
+│   │   ├── Action.java                   # Card ability definitions
+│   │   ├── Card.java & InFieldCard.java
+│   │   ├── CardType.java                 # Comprehensive Gwent card encyclopedia
+│   │   ├── Faction.java                  # Faction identifiers & passives
+│   │   ├── GameField.java                # Row scores & weather debuff state
+│   │   ├── LeaderCard.java
+│   │   └── Player.java & User.java
+│   ├── view/                             # JavaFX Application entrypoints
+│   │   ├── GameApplication.java          # In-game board canvas & coordinates
+│   │   ├── LoginMenuApplication.java
+│   │   ├── MainMenuApplication.java
+│   │   └── PregameMenuApplication.java
+│   └── module-info.java                  # Java 9+ module exports for OpenJFX
+└── src/main/resources/
+    ├── FXML/                             # FXML scene layouts (Login, Menu, Profile)
+    ├── img/                              # Card artwork (lg/sm), icons, board.jpg
+    └── video/                            # Login background video (MP4)
 ```
 
 ---
 
-## 🚀 Build & Run
+## Build & Execution
 
 ### Prerequisites
-- **JDK 21 LTS** or newer
-- **Apache Maven 3.8+**
+- JDK 17 or JDK 21 LTS
+- Apache Maven 3.8+
 
 ```bash
 # Clone the repository
 git clone https://github.com/Hosein1011/Gwent.git
 cd Gwent
 
-# Compile and package executable JAR
-mvn clean package
+# Compile and package
+mvn clean compile
 
-# Run the game engine
-mvn exec:java -Dexec.mainClass="controller.GameController"
+# Launch the application
+mvn exec:java -Dexec.mainClass="view.LoginMenuApplication"
 ```
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
